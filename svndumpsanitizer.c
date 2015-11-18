@@ -122,6 +122,13 @@ char* add_slash_to(char *str) {
 	return new_str;
 }
 
+char* remove_last_char_from(char *str) {
+        char* new_str = str_malloc(strlen(str) - 2);
+        strcpy(new_str, str);
+        new_str[strlen(str) - 2] = 0;
+        return new_str;
+}
+
 // Returns 1 if string a starts with string b, otherwise 0
 int starts_with(char *a, char *b) {
 	int i = 0;
@@ -465,7 +472,11 @@ int main(int argc, char **argv) {
 		for (i = rev_len - 1; i >= 0; --i) {
 			for (j = 0; j < revisions[i].size; ++j) {
 				for (k = 0; k < exc_len; ++k) {
-					temp_str = add_slash_to(exclude[k]);
+					if(exclude[k][strlen(exclude[k])-1] != '*') {
+						temp_str = add_slash_to(exclude[k]);
+					} else {
+						temp_str = remove_last_char_from(exclude[k]);
+					}
 					if (strcmp(revisions[i].nodes[j].path, exclude[k]) == 0 || starts_with(revisions[i].nodes[j].path, temp_str)) {
 						revisions[i].nodes[j].wanted = 0;
 					}
@@ -497,7 +508,11 @@ int main(int argc, char **argv) {
 				if (revisions[i].nodes[j].wanted && revisions[i].nodes[j].copyfrom != NULL) {
 					should_do = 0;
 					for (k = 0; k < exc_len; ++k) {
-						temp_str = add_slash_to(exclude[k]);
+						if(exclude[k][strlen(exclude[k])-1] != '*') {
+							temp_str = add_slash_to(exclude[k]);
+						} else {
+							temp_str = remove_last_char_from(exclude[k]);
+						}
 						temp_str2 = add_slash_to(revisions[i].nodes[j].copyfrom);
 						if (strcmp(revisions[i].nodes[j].copyfrom, exclude[k]) == 0 || starts_with(revisions[i].nodes[j].copyfrom, temp_str) || starts_with(exclude[k], temp_str2)) {
 							should_do = 1;
@@ -523,7 +538,11 @@ int main(int argc, char **argv) {
 		for (i = rev_len - 1; i >= 0; --i) {
 			for (j = 0 ; j < revisions[i].size ; ++j) {
 				for (k = 0; k < inc_len; ++k) {
-					temp_str = add_slash_to(include[k]);
+					if(include[k][strlen(include[k])-1] != '*') {
+						temp_str = add_slash_to(include[k]);
+					} else {
+						temp_str = remove_last_char_from(include[k]);
+					}
 					temp_str2 = add_slash_to(revisions[i].nodes[j].path);
 					if (strcmp(revisions[i].nodes[j].path, include[k]) == 0 || starts_with(revisions[i].nodes[j].path, temp_str) || starts_with(include[k], temp_str2)) {
 						revisions[i].nodes[j].wanted = 1;
@@ -557,7 +576,11 @@ int main(int argc, char **argv) {
 				if (revisions[i].nodes[j].wanted && revisions[i].nodes[j].copyfrom != NULL) {
 					should_do = 1;
 					for (k = 0; k < inc_len; ++k) {
-						temp_str = add_slash_to(include[k]);
+						if(include[k][strlen(include[k])-1] != '*') {
+							temp_str = add_slash_to(include[k]);
+						} else {
+							temp_str = remove_last_char_from(include[k]);
+						}
 						if (strcmp(revisions[i].nodes[j].copyfrom, include[k]) == 0 || starts_with(revisions[i].nodes[j].copyfrom, temp_str)) {
 							should_do = 0;
 							free(temp_str);
@@ -647,7 +670,11 @@ int main(int argc, char **argv) {
 	for (i = 0; i < rel_len; ++i) {
 		if (include == NULL && relevant_paths[i] != NULL) {
 			for (j = 0; j < exc_len; ++j) {
-				temp_str = add_slash_to(exclude[j]);
+				if(exclude[j][strlen(exclude[j])-1] != '*') {
+					temp_str = add_slash_to(exclude[j]);
+				} else {
+					temp_str = remove_last_char_from(exclude[j]);
+				}
 				if (strcmp(relevant_paths[i], exclude[j]) == 0 || starts_with(relevant_paths[i], temp_str)) {
 					if ((no_longer_relevant = (char**)realloc(no_longer_relevant, (no_len + 1) * sizeof(char*))) == NULL) {
 						exit_with_error("realloc failed", 2);
@@ -664,7 +691,11 @@ int main(int argc, char **argv) {
 			strcpy(temp_str, relevant_paths[i]);
 			strcat(temp_str, "/");
 			for (j = 0; j < inc_len; ++j) {
-				temp_str2 = add_slash_to(include[j]);
+				if(include[j][strlen(include[j])-1] != '*') {
+                                	temp_str2 = add_slash_to(include[j]);
+                                } else {
+                                        temp_str2 = remove_last_char_from(include[j]);
+                                }
 				if (!(strcmp(relevant_paths[i], include[j]) == 0 || starts_with(relevant_paths[i], temp_str2) || starts_with(include[j], temp_str))) {
 					if ((no_longer_relevant = (char**)realloc(no_longer_relevant, (no_len + 1) * sizeof(char*))) == NULL) {
 						exit_with_error("realloc failed", 2);
@@ -682,7 +713,11 @@ int main(int argc, char **argv) {
 	for (i = 0; i < no_len; ++i) {
 		if (no_longer_relevant[i] != NULL) {
 			for (j = 0; j < inc_len ; ++j) {
-				temp_str = add_slash_to(include[j]);
+				if(include[j][strlen(include[j])-1] != '*') {
+                                        temp_str = add_slash_to(include[j]);
+                                } else {
+                                        temp_str = remove_last_char_from(include[j]);
+                                }
 				temp_str2 = add_slash_to(no_longer_relevant[i]);
 				if (strcmp(no_longer_relevant[i], include[j]) == 0 || starts_with(no_longer_relevant[i], temp_str) || starts_with(include[j], temp_str2)) {
 					free(no_longer_relevant[i]);
